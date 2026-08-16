@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useClanData } from '../hooks/useClanData';
-import { Crown, CloudUpload, CloudDownload, Plus, Minus, Trash2, UserPlus, X } from 'lucide-react';
+import { Crown, CloudUpload, CloudDownload, Plus, Minus, Trash2, UserPlus, X, Search, ArrowDownUp, Sun, Moon } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -26,7 +26,8 @@ export default function Dashboard() {
     metaClasicasGlobal,
     setMetaClasicasGlobal,
     addJugador,
-    removeJugador
+    removeJugador,
+    sortJugadoresManually
   } = useClanData(mockPlayers);
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -34,6 +35,25 @@ export default function Dashboard() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerTH, setNewPlayerTH] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Persistir preferencia de tema
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    return true; // dark mode por defecto
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   const docRef = doc(db, 'clanData', 'estadoMensual');
 
@@ -110,17 +130,30 @@ export default function Dashboard() {
     }
   };
 
+  const jugadoresFiltrados = jugadores.filter(j => 
+    j.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Encabezado */}
-        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-gray-900/50 p-6 rounded-2xl border border-gray-800 backdrop-blur-xl shadow-2xl">
+        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-white/80 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 backdrop-blur-xl shadow-xl dark:shadow-2xl transition-colors duration-300">
           <div>
-            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight">
-              Clan Dashboard
-            </h1>
-            <p className="text-gray-400 mt-1 text-sm font-medium">Gestión mensual de actividad y puntos</p>
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 tracking-tight">
+                Clan Dashboard
+              </h1>
+              <button 
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                title={isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm font-medium">Gestión mensual de actividad y puntos</p>
           </div>
           
           <div className="flex flex-wrap items-end gap-4 w-full xl:w-auto">
@@ -130,7 +163,7 @@ export default function Dashboard() {
                 type="number" 
                 value={metaCapitalGlobal}
                 onChange={(e) => setMetaCapitalGlobal(Number(e.target.value))}
-                className="w-20 bg-gray-950 border border-gray-700 rounded-lg px-2 py-2 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium"
+                className="w-20 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium transition-colors"
               />
             </div>
             
@@ -140,7 +173,7 @@ export default function Dashboard() {
                 type="number" 
                 value={metaClasicasGlobal}
                 onChange={(e) => setMetaClasicasGlobal(Number(e.target.value))}
-                className="w-20 bg-gray-950 border border-gray-700 rounded-lg px-2 py-2 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium"
+                className="w-20 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium transition-colors"
               />
             </div>
 
@@ -148,7 +181,7 @@ export default function Dashboard() {
             
             <button 
               onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 hover:border-gray-600 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-white border border-gray-200 dark:border-gray-700 active:scale-95"
             >
               {showAddForm ? <X className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
               <span className="hidden sm:inline">{showAddForm ? 'Cancelar' : 'Añadir Miembro'}</span>
@@ -157,7 +190,7 @@ export default function Dashboard() {
             <button 
               onClick={handleLoadDB}
               disabled={isLoadingDB}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg border ${isLoadingDB ? 'bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed' : 'bg-gray-900 border-cyan-800/50 hover:bg-gray-800 hover:border-cyan-500/50 text-cyan-400 active:scale-95'}`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg border ${isLoadingDB ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-900 border-cyan-200 dark:border-cyan-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-cyan-300 dark:hover:border-cyan-500/50 text-cyan-600 dark:text-cyan-400 active:scale-95'}`}
             >
               <CloudDownload className={`w-5 h-5 ${isLoadingDB ? 'animate-pulse' : ''}`} />
               <span className="hidden sm:inline">{isLoadingDB ? 'Cargando...' : 'Descargar DB'}</span>
@@ -166,7 +199,7 @@ export default function Dashboard() {
             <button 
               onClick={handleSync}
               disabled={isSyncing}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg ${isSyncing ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white hover:shadow-emerald-500/25 active:scale-95'}`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg ${isSyncing ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white hover:shadow-emerald-500/25 active:scale-95'}`}
             >
               <CloudUpload className={`w-5 h-5 ${isSyncing ? 'animate-bounce' : ''}`} />
               <span className="hidden sm:inline">{isSyncing ? 'Guardando...' : 'Guardar en Nube'}</span>
@@ -176,28 +209,28 @@ export default function Dashboard() {
 
         {/* Formulario Añadir Jugador */}
         {showAddForm && (
-          <div className="bg-gray-900/60 border border-emerald-900/50 p-6 rounded-2xl shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-300">
-            <h3 className="text-lg font-semibold text-emerald-400 mb-4">Registrar Nuevo Miembro</h3>
+          <div className="bg-white/90 dark:bg-gray-900/60 border border-emerald-200 dark:border-emerald-900/50 p-6 rounded-2xl shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-300 transition-colors">
+            <h3 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mb-4">Registrar Nuevo Miembro</h3>
             <form onSubmit={handleAddSubmit} className="flex flex-col sm:flex-row gap-4 items-end">
               <div className="flex flex-col w-full sm:w-64">
-                <label className="text-xs text-gray-400 mb-1 ml-1">Nombre en el Juego</label>
+                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">Nombre en el Juego</label>
                 <input 
                   type="text" 
                   required
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   placeholder="Ej: Bárbaro Furioso"
-                  className="bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none w-full"
+                  className="bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none w-full transition-colors"
                 />
               </div>
               <div className="flex flex-col w-full sm:w-32">
-                <label className="text-xs text-gray-400 mb-1 ml-1">Nivel TH (Opcional)</label>
+                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">Nivel TH (Opcional)</label>
                 <input 
                   type="number" 
                   value={newPlayerTH}
                   onChange={(e) => setNewPlayerTH(e.target.value)}
                   placeholder="Ej: 14"
-                  className="bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none w-full"
+                  className="bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none w-full transition-colors"
                 />
               </div>
               <button 
@@ -210,46 +243,69 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Barra de Búsqueda y Ordenamiento */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/60 dark:bg-gray-900/40 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md transition-colors duration-300">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Buscar jugador por nombre..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-colors placeholder-gray-400 dark:placeholder-gray-500"
+            />
+          </div>
+          
+          <button 
+            onClick={sortJugadoresManually}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 w-full sm:w-auto justify-center"
+          >
+            <ArrowDownUp className="w-4 h-4" />
+            Ordenar por Puntaje
+          </button>
+        </div>
+
         {/* Tabla Principal */}
-        <div className="overflow-x-auto bg-gray-900/40 border border-gray-800 rounded-2xl shadow-xl backdrop-blur-md pb-4">
+        <div className="overflow-x-auto bg-white/60 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl backdrop-blur-md pb-4 transition-colors duration-300">
           <table className="w-full text-left whitespace-nowrap">
             <thead>
-              <tr className="bg-gray-900/80 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
+              <tr className="bg-gray-100/80 dark:bg-gray-900/80 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-800 transition-colors">
                 <th className="px-6 py-4 font-semibold">Rank</th>
                 <th className="px-6 py-4 font-semibold">Jugador</th>
                 <th className="px-6 py-4 font-semibold text-center">Capital Raids</th>
                 <th className="px-6 py-4 font-semibold text-center">Clan Games</th>
                 <th className="px-6 py-4 font-semibold text-center">Classic Wars</th>
                 <th className="px-6 py-4 font-semibold text-center">CWL</th>
-                <th className="px-6 py-4 font-semibold text-right text-emerald-400">Total Score</th>
+                <th className="px-6 py-4 font-semibold text-right text-emerald-600 dark:text-emerald-400">Total Score</th>
                 <th className="px-4 py-4 font-semibold text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/50">
-              {jugadores.map((jugador, index) => {
-                const isTop8 = index < 8;
-                const isFirst = index === 0;
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+              {jugadoresFiltrados.map((jugador, index) => {
+                const realIndex = jugadores.findIndex(j => j.id === jugador.id);
+                const isTop8 = realIndex !== -1 && realIndex < 8;
+                const isFirst = realIndex === 0;
 
                 return (
                   <tr 
                     key={jugador.id} 
-                    className={`group transition-colors hover:bg-gray-800/40 ${isTop8 ? 'bg-emerald-950/10' : ''}`}
+                    className={`group transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 ${isTop8 ? 'bg-emerald-50 dark:bg-emerald-950/10' : ''}`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`font-mono text-lg font-bold ${isFirst ? 'text-amber-400' : isTop8 ? 'text-emerald-400' : 'text-gray-500'}`}>
-                          #{index + 1}
+                        <span className={`font-mono text-lg font-bold ${isFirst ? 'text-amber-500 dark:text-amber-400' : isTop8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                          #{realIndex + 1}
                         </span>
-                        {isFirst && <Crown className="w-5 h-5 text-amber-400 drop-shadow-md" />}
+                        {isFirst && <Crown className="w-5 h-5 text-amber-500 dark:text-amber-400 drop-shadow-md" />}
                       </div>
                     </td>
                     
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-200">
+                      <div className="font-medium text-gray-900 dark:text-gray-200">
                         {jugador.nombre}
-                        {jugador.th && <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-900 px-1.5 py-0.5 rounded">TH{jugador.th}</span>}
+                        {jugador.th && <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded transition-colors">TH{jugador.th}</span>}
                       </div>
-                      {isTop8 && <div className="text-[10px] text-emerald-500 font-semibold uppercase tracking-wider mt-0.5">Bonus CWL</div>}
+                      {isTop8 && <div className="text-[10px] text-emerald-600 dark:text-emerald-500 font-semibold uppercase tracking-wider mt-0.5">Bonus CWL</div>}
                     </td>
 
                     <td className="px-6 py-4 text-center">
@@ -257,7 +313,7 @@ export default function Dashboard() {
                         type="number" 
                         value={jugador.ataquesCapital}
                         onChange={(e) => updatePlayer(jugador.id, 'ataquesCapital', e.target.value)}
-                        className="w-16 bg-gray-950/50 border border-gray-700/50 rounded px-2 py-1 text-center text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-800 focus:bg-gray-950"
+                        className="w-16 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-300/50 dark:border-gray-700/50 rounded px-2 py-1 text-center text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-950"
                       />
                     </td>
 
@@ -267,39 +323,39 @@ export default function Dashboard() {
                         value={jugador.puntosJuegos}
                         step="100"
                         onChange={(e) => updatePlayer(jugador.id, 'puntosJuegos', e.target.value)}
-                        className="w-20 bg-gray-950/50 border border-gray-700/50 rounded px-2 py-1 text-center text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-800 focus:bg-gray-950"
+                        className="w-20 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-300/50 dark:border-gray-700/50 rounded px-2 py-1 text-center text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-950"
                       />
                     </td>
 
                     <td className="px-6 py-4">
                       <div className="flex justify-center">
-                        <div className="flex items-center justify-between w-32 bg-gray-950/50 border border-gray-800 rounded-lg p-1">
-                          <span className="text-[10px] text-gray-500 font-semibold w-8 text-right pr-1">USOS</span>
-                          <button onClick={() => updateClassicWars(jugador.id, -1)} className="p-1 rounded bg-gray-800 hover:bg-red-500/20 hover:text-red-400 transition-colors text-gray-400"><Minus className="w-3 h-3"/></button>
-                          <span className="w-4 text-center font-mono text-sm">{jugador.ataquesClasicasUsados}</span>
-                          <button onClick={() => updateClassicWars(jugador.id, 1)} className="p-1 rounded bg-gray-800 hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors text-gray-400"><Plus className="w-3 h-3"/></button>
+                        <div className="flex items-center justify-between w-32 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 transition-colors">
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-8 text-right pr-1">USOS</span>
+                          <button onClick={() => updateClassicWars(jugador.id, -1)} className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 transition-colors text-gray-500 dark:text-gray-400"><Minus className="w-3 h-3"/></button>
+                          <span className="w-4 text-center font-mono text-sm text-gray-700 dark:text-gray-300">{jugador.ataquesClasicasUsados}</span>
+                          <button onClick={() => updateClassicWars(jugador.id, 1)} className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-gray-500 dark:text-gray-400"><Plus className="w-3 h-3"/></button>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4">
                        <div className="flex flex-col items-center gap-2">
-                        <div className="flex items-center gap-2 bg-gray-950/50 border border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
-                          <span className="text-[10px] text-gray-500 font-semibold w-12 text-right">ESTRELLAS</span>
+                        <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">ESTRELLAS</span>
                           <input 
                             type="number" 
                             value={jugador.estrellasCWL}
                             onChange={(e) => updatePlayer(jugador.id, 'estrellasCWL', e.target.value)}
-                            className="w-10 bg-transparent text-center text-gray-300 font-mono text-sm outline-none rounded"
+                            className="w-10 bg-transparent text-center text-gray-700 dark:text-gray-300 font-mono text-sm outline-none rounded"
                           />
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-950/50 border border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
-                          <span className="text-[10px] text-gray-500 font-semibold w-12 text-right">DÍAS</span>
+                        <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">DÍAS</span>
                           <input 
                             type="number" 
                             value={jugador.diasJugadosCWL}
                             onChange={(e) => updatePlayer(jugador.id, 'diasJugadosCWL', e.target.value)}
-                            className="w-10 bg-transparent text-center text-gray-300 font-mono text-sm outline-none rounded"
+                            className="w-10 bg-transparent text-center text-gray-700 dark:text-gray-300 font-mono text-sm outline-none rounded"
                           />
                         </div>
                       </div>
@@ -307,10 +363,10 @@ export default function Dashboard() {
 
                     <td className="px-6 py-4 text-right">
                       <div className="flex flex-col items-end">
-                        <span className={`text-2xl font-bold transition-all ${isFirst ? 'text-amber-400 drop-shadow-md' : isTop8 ? 'text-emerald-400' : 'text-gray-300'}`}>
+                        <span className={`text-2xl font-bold transition-all ${isFirst ? 'text-amber-500 dark:text-amber-400 drop-shadow-md' : isTop8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-800 dark:text-gray-300'}`}>
                           {jugador.totalScore.toFixed(1)}
                         </span>
-                        <div className="flex gap-1 text-[9px] text-gray-500 mt-1 font-mono bg-gray-950/50 px-2 py-0.5 rounded-full border border-gray-800 shadow-inner">
+                        <div className="flex gap-1 text-[9px] text-gray-500 mt-1 font-mono bg-gray-50/50 dark:bg-gray-950/50 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-800 shadow-inner transition-colors">
                           <span title="Puntos de Capital">{jugador.detallesPuntaje.capital}</span>|
                           <span title="Puntos de Juegos">{jugador.detallesPuntaje.juegos}</span>|
                           <span title="Puntos Clásicas">{jugador.detallesPuntaje.clasicas}</span>|
@@ -323,7 +379,7 @@ export default function Dashboard() {
                       <button 
                         onClick={() => removeJugador(jugador.id)}
                         title="Eliminar Jugador"
-                        className="p-2 rounded-lg text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                        className="p-2 rounded-lg text-gray-400 hover:bg-red-100 dark:hover:bg-red-500/10 hover:text-red-500 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -333,9 +389,9 @@ export default function Dashboard() {
               })}
             </tbody>
           </table>
-          {jugadores.length === 0 && (
+          {jugadoresFiltrados.length === 0 && (
             <div className="p-12 text-center text-gray-500">
-              <p>No hay jugadores en la tabla. Añade un miembro para comenzar.</p>
+              <p>No se encontraron jugadores.</p>
             </div>
           )}
         </div>

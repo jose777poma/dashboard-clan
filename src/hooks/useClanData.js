@@ -79,8 +79,8 @@ export const useClanData = (initialJugadores = []) => {
       };
     });
 
-    // Ordenar automáticamente de mayor a menor puntuación total
-    return procesados.sort((a, b) => b.totalScore - a.totalScore);
+    // Se elimina el ordenamiento automático
+    return procesados;
   }, [jugadores, metaCapitalGlobal, metaClasicasGlobal]);
 
   const addJugador = (nombre, th) => {
@@ -101,6 +101,18 @@ export const useClanData = (initialJugadores = []) => {
     setJugadores(prev => prev.filter(jugador => jugador.id !== id));
   };
 
+  const sortJugadoresManually = () => {
+    // Ordenamos el estado base utilizando los puntajes ya calculados
+    const scoreMap = new Map();
+    jugadoresCalculados.forEach(j => scoreMap.set(j.id, j.totalScore));
+    
+    setJugadores(prev => [...prev].sort((a, b) => {
+      const scoreA = scoreMap.get(a.id) || 0;
+      const scoreB = scoreMap.get(b.id) || 0;
+      return scoreB - scoreA;
+    }));
+  };
+
   return {
     jugadores: jugadoresCalculados,
     setJugadores,
@@ -111,7 +123,8 @@ export const useClanData = (initialJugadores = []) => {
     metaClasicasGlobal,
     setMetaClasicasGlobal,
     addJugador,
-    removeJugador
+    removeJugador,
+    sortJugadoresManually
   };
 };
 
