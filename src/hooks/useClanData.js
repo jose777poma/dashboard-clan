@@ -1,20 +1,20 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from "react";
 
 export const useClanData = (initialJugadores = []) => {
   // Inicialización diferida usando localStorage
   const [jugadores, setJugadores] = useState(() => {
-    const saved = localStorage.getItem('clanData_jugadores');
+    const saved = localStorage.getItem("clanData_jugadores");
     if (saved) return JSON.parse(saved);
     return initialJugadores.length > 0 ? initialJugadores : [];
   });
 
   const [metaCapitalGlobal, setMetaCapitalGlobal] = useState(() => {
-    const saved = localStorage.getItem('clanData_metaCapital');
+    const saved = localStorage.getItem("clanData_metaCapital");
     return saved ? JSON.parse(saved) : 24;
   });
 
   const [metaClasicasGlobal, setMetaClasicasGlobal] = useState(() => {
-    const saved = localStorage.getItem('clanData_metaClasicas');
+    const saved = localStorage.getItem("clanData_metaClasicas");
     return saved ? JSON.parse(saved) : 20;
   });
 
@@ -22,26 +22,32 @@ export const useClanData = (initialJugadores = []) => {
 
   // Persistir cambios en localStorage
   useEffect(() => {
-    localStorage.setItem('clanData_jugadores', JSON.stringify(jugadores));
+    localStorage.setItem("clanData_jugadores", JSON.stringify(jugadores));
   }, [jugadores]);
 
   useEffect(() => {
-    localStorage.setItem('clanData_metaCapital', JSON.stringify(metaCapitalGlobal));
+    localStorage.setItem(
+      "clanData_metaCapital",
+      JSON.stringify(metaCapitalGlobal),
+    );
   }, [metaCapitalGlobal]);
 
   useEffect(() => {
-    localStorage.setItem('clanData_metaClasicas', JSON.stringify(metaClasicasGlobal));
+    localStorage.setItem(
+      "clanData_metaClasicas",
+      JSON.stringify(metaClasicasGlobal),
+    );
   }, [metaClasicasGlobal]);
 
   const jugadoresCalculados = useMemo(() => {
-    const procesados = jugadores.map(jugador => {
+    const procesados = jugadores.map((jugador) => {
       // Extraemos propiedades con valores por defecto a 0
       const {
         ataquesCapital = 0,
         puntosJuegos = 0,
         ataquesClasicasUsados = 0,
         estrellasCWL = 0,
-        diasJugadosCWL = 0
+        diasJugadosCWL = 0,
       } = jugador;
 
       // 1. Puntaje Capital (40 pts máximo)
@@ -49,7 +55,7 @@ export const useClanData = (initialJugadores = []) => {
       ptsCapital = Math.min(ptsCapital, 40);
 
       // 2. Puntaje Juegos (30 pts máximo)
-      let ptsJuegos = (puntosJuegos / 10000) * 30;
+      let ptsJuegos = (puntosJuegos / 4000) * 30;
       ptsJuegos = Math.min(ptsJuegos, 30);
 
       // 3. Puntaje Guerras Clásicas (15 pts máximo)
@@ -92,25 +98,27 @@ export const useClanData = (initialJugadores = []) => {
       puntosJuegos: 0,
       ataquesClasicasUsados: 0,
       estrellasCWL: 0,
-      diasJugadosCWL: 0
+      diasJugadosCWL: 0,
     };
-    setJugadores(prev => [...prev, nuevoJugador]);
+    setJugadores((prev) => [...prev, nuevoJugador]);
   };
 
   const removeJugador = (id) => {
-    setJugadores(prev => prev.filter(jugador => jugador.id !== id));
+    setJugadores((prev) => prev.filter((jugador) => jugador.id !== id));
   };
 
   const sortJugadoresManually = () => {
     // Ordenamos el estado base utilizando los puntajes ya calculados
     const scoreMap = new Map();
-    jugadoresCalculados.forEach(j => scoreMap.set(j.id, j.totalScore));
-    
-    setJugadores(prev => [...prev].sort((a, b) => {
-      const scoreA = scoreMap.get(a.id) || 0;
-      const scoreB = scoreMap.get(b.id) || 0;
-      return scoreB - scoreA;
-    }));
+    jugadoresCalculados.forEach((j) => scoreMap.set(j.id, j.totalScore));
+
+    setJugadores((prev) =>
+      [...prev].sort((a, b) => {
+        const scoreA = scoreMap.get(a.id) || 0;
+        const scoreB = scoreMap.get(b.id) || 0;
+        return scoreB - scoreA;
+      }),
+    );
   };
 
   return {
@@ -124,7 +132,6 @@ export const useClanData = (initialJugadores = []) => {
     setMetaClasicasGlobal,
     addJugador,
     removeJugador,
-    sortJugadoresManually
+    sortJugadoresManually,
   };
 };
-

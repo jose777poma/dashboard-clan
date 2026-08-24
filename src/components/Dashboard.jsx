@@ -1,20 +1,123 @@
-import React, { useState, useEffect } from 'react';
-import { useClanData } from '../hooks/useClanData';
-import { Crown, CloudUpload, CloudDownload, Plus, Minus, Trash2, UserPlus, X, Search, ArrowDownUp, Sun, Moon } from 'lucide-react';
-import { db } from '../firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import React, { useState, useEffect } from "react";
+import { useClanData } from "../hooks/useClanData";
+import {
+  Crown,
+  CloudUpload,
+  CloudDownload,
+  Plus,
+  Minus,
+  Trash2,
+  UserPlus,
+  X,
+  Search,
+  ArrowDownUp,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { db } from "../firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const mockPlayers = [
-  { id: '1', nombre: 'Rey Bárbaro', th: 15, ataquesCapital: 20, puntosJuegos: 8000, ataquesClasicasUsados: 4, estrellasCWL: 15, diasJugadosCWL: 5 },
-  { id: '2', nombre: 'Reina Arquera', th: 15, ataquesCapital: 24, puntosJuegos: 10000, ataquesClasicasUsados: 6, estrellasCWL: 21, diasJugadosCWL: 7 },
-  { id: '3', nombre: 'Centinela', th: 14, ataquesCapital: 12, puntosJuegos: 4000, ataquesClasicasUsados: 2, estrellasCWL: 8, diasJugadosCWL: 4 },
-  { id: '4', nombre: 'Luchadora', th: 16, ataquesCapital: 24, puntosJuegos: 10000, ataquesClasicasUsados: 4, estrellasCWL: 18, diasJugadosCWL: 6 },
-  { id: '5', nombre: 'Mago', th: 13, ataquesCapital: 18, puntosJuegos: 6000, ataquesClasicasUsados: 3, estrellasCWL: 12, diasJugadosCWL: 5 },
-  { id: '6', nombre: 'Pekka', th: 14, ataquesCapital: 22, puntosJuegos: 9500, ataquesClasicasUsados: 5, estrellasCWL: 16, diasJugadosCWL: 6 },
-  { id: '7', nombre: 'Dragón', th: 16, ataquesCapital: 24, puntosJuegos: 10000, ataquesClasicasUsados: 6, estrellasCWL: 20, diasJugadosCWL: 7 },
-  { id: '8', nombre: 'Montapuercos', th: 12, ataquesCapital: 15, puntosJuegos: 5000, ataquesClasicasUsados: 2, estrellasCWL: 6, diasJugadosCWL: 3 },
-  { id: '9', nombre: 'Minero', th: 11, ataquesCapital: 10, puntosJuegos: 3000, ataquesClasicasUsados: 1, estrellasCWL: 4, diasJugadosCWL: 2 },
-  { id: '10', nombre: 'Yeti', th: 15, ataquesCapital: 24, puntosJuegos: 10000, ataquesClasicasUsados: 6, estrellasCWL: 21, diasJugadosCWL: 7 },
+  {
+    id: "1",
+    nombre: "Rey Bárbaro",
+    th: 15,
+    ataquesCapital: 20,
+    puntosJuegos: 8000,
+    ataquesClasicasUsados: 4,
+    estrellasCWL: 15,
+    diasJugadosCWL: 5,
+  },
+  {
+    id: "2",
+    nombre: "Reina Arquera",
+    th: 15,
+    ataquesCapital: 24,
+    puntosJuegos: 10000,
+    ataquesClasicasUsados: 6,
+    estrellasCWL: 21,
+    diasJugadosCWL: 7,
+  },
+  {
+    id: "3",
+    nombre: "Centinela",
+    th: 14,
+    ataquesCapital: 12,
+    puntosJuegos: 4000,
+    ataquesClasicasUsados: 2,
+    estrellasCWL: 8,
+    diasJugadosCWL: 4,
+  },
+  {
+    id: "4",
+    nombre: "Luchadora",
+    th: 16,
+    ataquesCapital: 24,
+    puntosJuegos: 10000,
+    ataquesClasicasUsados: 4,
+    estrellasCWL: 18,
+    diasJugadosCWL: 6,
+  },
+  {
+    id: "5",
+    nombre: "Mago",
+    th: 13,
+    ataquesCapital: 18,
+    puntosJuegos: 6000,
+    ataquesClasicasUsados: 3,
+    estrellasCWL: 12,
+    diasJugadosCWL: 5,
+  },
+  {
+    id: "6",
+    nombre: "Pekka",
+    th: 14,
+    ataquesCapital: 22,
+    puntosJuegos: 9500,
+    ataquesClasicasUsados: 5,
+    estrellasCWL: 16,
+    diasJugadosCWL: 6,
+  },
+  {
+    id: "7",
+    nombre: "Dragón",
+    th: 16,
+    ataquesCapital: 24,
+    puntosJuegos: 10000,
+    ataquesClasicasUsados: 6,
+    estrellasCWL: 20,
+    diasJugadosCWL: 7,
+  },
+  {
+    id: "8",
+    nombre: "Montapuercos",
+    th: 12,
+    ataquesCapital: 15,
+    puntosJuegos: 5000,
+    ataquesClasicasUsados: 2,
+    estrellasCWL: 6,
+    diasJugadosCWL: 3,
+  },
+  {
+    id: "9",
+    nombre: "Minero",
+    th: 11,
+    ataquesCapital: 10,
+    puntosJuegos: 3000,
+    ataquesClasicasUsados: 1,
+    estrellasCWL: 4,
+    diasJugadosCWL: 2,
+  },
+  {
+    id: "10",
+    nombre: "Yeti",
+    th: 15,
+    ataquesCapital: 24,
+    puntosJuegos: 10000,
+    ataquesClasicasUsados: 6,
+    estrellasCWL: 21,
+    diasJugadosCWL: 7,
+  },
 ];
 
 export default function Dashboard() {
@@ -27,35 +130,35 @@ export default function Dashboard() {
     setMetaClasicasGlobal,
     addJugador,
     removeJugador,
-    sortJugadoresManually
+    sortJugadoresManually,
   } = useClanData(mockPlayers);
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoadingDB, setIsLoadingDB] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newPlayerName, setNewPlayerName] = useState('');
-  const [newPlayerTH, setNewPlayerTH] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [newPlayerName, setNewPlayerName] = useState("");
+  const [newPlayerTH, setNewPlayerTH] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Persistir preferencia de tema
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved === 'dark';
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved === "dark";
     return true; // dark mode por defecto
   });
 
   useEffect(() => {
     const root = document.documentElement;
     if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
 
-  const docRef = doc(db, 'clanData', 'estadoMensual');
+  const docRef = doc(db, "clanData", "estadoMensual");
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -64,12 +167,12 @@ export default function Dashboard() {
         jugadores,
         metaCapitalGlobal,
         metaClasicasGlobal,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
-      alert('✅ Datos guardados correctamente en Firebase.');
+      alert("✅ Datos guardados correctamente en Firebase.");
     } catch (error) {
-      console.error('Error al guardar en Firebase:', error);
-      alert('❌ Hubo un error al guardar los datos.');
+      console.error("Error al guardar en Firebase:", error);
+      alert("❌ Hubo un error al guardar los datos.");
     } finally {
       setIsSyncing(false);
     }
@@ -82,41 +185,43 @@ export default function Dashboard() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.jugadores) setJugadores(data.jugadores);
-        if (data.metaCapitalGlobal) setMetaCapitalGlobal(data.metaCapitalGlobal);
-        if (data.metaClasicasGlobal) setMetaClasicasGlobal(data.metaClasicasGlobal);
-        alert('✅ Datos cargados correctamente desde Firebase.');
+        if (data.metaCapitalGlobal)
+          setMetaCapitalGlobal(data.metaCapitalGlobal);
+        if (data.metaClasicasGlobal)
+          setMetaClasicasGlobal(data.metaClasicasGlobal);
+        alert("✅ Datos cargados correctamente desde Firebase.");
       } else {
-        alert('⚠️ No se encontraron datos guardados previamente en la nube.');
+        alert("⚠️ No se encontraron datos guardados previamente en la nube.");
       }
     } catch (error) {
-      console.error('Error al cargar de Firebase:', error);
-      alert('❌ Hubo un error al cargar los datos.');
+      console.error("Error al cargar de Firebase:", error);
+      alert("❌ Hubo un error al cargar los datos.");
     } finally {
       setIsLoadingDB(false);
     }
   };
 
   const updatePlayer = (id, field, value) => {
-    setJugadores(prev => 
-      prev.map(p => {
+    setJugadores((prev) =>
+      prev.map((p) => {
         if (p.id === id) {
           const newValue = Math.max(0, Number(value));
           return { ...p, [field]: newValue };
         }
         return p;
-      })
+      }),
     );
   };
 
   const updateClassicWars = (id, increment) => {
-    setJugadores(prev => 
-      prev.map(p => {
+    setJugadores((prev) =>
+      prev.map((p) => {
         if (p.id === id) {
           let newValue = Math.max(0, p.ataquesClasicasUsados + increment);
           return { ...p, ataquesClasicasUsados: newValue };
         }
         return p;
-      })
+      }),
     );
   };
 
@@ -124,20 +229,19 @@ export default function Dashboard() {
     e.preventDefault();
     if (newPlayerName.trim()) {
       addJugador(newPlayerName.trim(), Number(newPlayerTH) || 1);
-      setNewPlayerName('');
-      setNewPlayerTH('');
+      setNewPlayerName("");
+      setNewPlayerTH("");
       setShowAddForm(false);
     }
   };
 
-  const jugadoresFiltrados = jugadores.filter(j => 
-    j.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  const jugadoresFiltrados = jugadores.filter((j) =>
+    j.nombre.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-200 p-4 md:p-8 font-sans selection:bg-emerald-500/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-8">
-        
         {/* Encabezado */}
         <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 bg-white/80 dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 backdrop-blur-xl shadow-xl dark:shadow-2xl transition-colors duration-300">
           <div>
@@ -145,32 +249,44 @@ export default function Dashboard() {
               <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 tracking-tight">
                 Clan Dashboard
               </h1>
-              <button 
+              <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
                 className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                title={isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+                title={
+                  isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"
+                }
               >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDarkMode ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
               </button>
             </div>
-            <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm font-medium">Gestión mensual de actividad y puntos</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm font-medium">
+              Gestión mensual de actividad y puntos
+            </p>
           </div>
-          
+
           <div className="flex flex-wrap items-end gap-4 w-full xl:w-auto">
             <div className="flex flex-col">
-              <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Meta Capital</label>
-              <input 
-                type="number" 
+              <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">
+                Meta Capital
+              </label>
+              <input
+                type="number"
                 value={metaCapitalGlobal}
                 onChange={(e) => setMetaCapitalGlobal(Number(e.target.value))}
                 className="w-20 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium transition-colors"
               />
             </div>
-            
+
             <div className="flex flex-col">
-              <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Meta Clásicas</label>
-              <input 
-                type="number" 
+              <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">
+                Meta Clásicas
+              </label>
+              <input
+                type="number"
                 value={metaClasicasGlobal}
                 onChange={(e) => setMetaClasicasGlobal(Number(e.target.value))}
                 className="w-20 bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none text-center font-medium transition-colors"
@@ -178,31 +294,45 @@ export default function Dashboard() {
             </div>
 
             <div className="flex-1"></div>
-            
-            <button 
+
+            <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-white border border-gray-200 dark:border-gray-700 active:scale-95"
             >
-              {showAddForm ? <X className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-              <span className="hidden sm:inline">{showAddForm ? 'Cancelar' : 'Añadir Miembro'}</span>
+              {showAddForm ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <UserPlus className="w-5 h-5" />
+              )}
+              <span className="hidden sm:inline">
+                {showAddForm ? "Cancelar" : "Añadir Miembro"}
+              </span>
             </button>
 
-            <button 
+            <button
               onClick={handleLoadDB}
               disabled={isLoadingDB}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg border ${isLoadingDB ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-900 border-cyan-200 dark:border-cyan-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-cyan-300 dark:hover:border-cyan-500/50 text-cyan-600 dark:text-cyan-400 active:scale-95'}`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg border ${isLoadingDB ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700 cursor-not-allowed" : "bg-white dark:bg-gray-900 border-cyan-200 dark:border-cyan-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-cyan-300 dark:hover:border-cyan-500/50 text-cyan-600 dark:text-cyan-400 active:scale-95"}`}
             >
-              <CloudDownload className={`w-5 h-5 ${isLoadingDB ? 'animate-pulse' : ''}`} />
-              <span className="hidden sm:inline">{isLoadingDB ? 'Cargando...' : 'Descargar DB'}</span>
+              <CloudDownload
+                className={`w-5 h-5 ${isLoadingDB ? "animate-pulse" : ""}`}
+              />
+              <span className="hidden sm:inline">
+                {isLoadingDB ? "Cargando..." : "Descargar DB"}
+              </span>
             </button>
 
-            <button 
+            <button
               onClick={handleSync}
               disabled={isSyncing}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg ${isSyncing ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white hover:shadow-emerald-500/25 active:scale-95'}`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg ${isSyncing ? "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white hover:shadow-emerald-500/25 active:scale-95"}`}
             >
-              <CloudUpload className={`w-5 h-5 ${isSyncing ? 'animate-bounce' : ''}`} />
-              <span className="hidden sm:inline">{isSyncing ? 'Guardando...' : 'Guardar en Nube'}</span>
+              <CloudUpload
+                className={`w-5 h-5 ${isSyncing ? "animate-bounce" : ""}`}
+              />
+              <span className="hidden sm:inline">
+                {isSyncing ? "Guardando..." : "Guardar en Nube"}
+              </span>
             </button>
           </div>
         </header>
@@ -210,12 +340,19 @@ export default function Dashboard() {
         {/* Formulario Añadir Jugador */}
         {showAddForm && (
           <div className="bg-white/90 dark:bg-gray-900/60 border border-emerald-200 dark:border-emerald-900/50 p-6 rounded-2xl shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-300 transition-colors">
-            <h3 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mb-4">Registrar Nuevo Miembro</h3>
-            <form onSubmit={handleAddSubmit} className="flex flex-col sm:flex-row gap-4 items-end">
+            <h3 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mb-4">
+              Registrar Nuevo Miembro
+            </h3>
+            <form
+              onSubmit={handleAddSubmit}
+              className="flex flex-col sm:flex-row gap-4 items-end"
+            >
               <div className="flex flex-col w-full sm:w-64">
-                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">Nombre en el Juego</label>
-                <input 
-                  type="text" 
+                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">
+                  Nombre en el Juego
+                </label>
+                <input
+                  type="text"
                   required
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
@@ -224,16 +361,18 @@ export default function Dashboard() {
                 />
               </div>
               <div className="flex flex-col w-full sm:w-32">
-                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">Nivel TH (Opcional)</label>
-                <input 
-                  type="number" 
+                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">
+                  Nivel TH (Opcional)
+                </label>
+                <input
+                  type="number"
                   value={newPlayerTH}
                   onChange={(e) => setNewPlayerTH(e.target.value)}
                   placeholder="Ej: 14"
                   className="bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none w-full transition-colors"
                 />
               </div>
-              <button 
+              <button
                 type="submit"
                 className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-medium transition-all bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 active:scale-95"
               >
@@ -247,16 +386,16 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/60 dark:bg-gray-900/40 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md transition-colors duration-300">
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Buscar jugador por nombre..." 
+            <input
+              type="text"
+              placeholder="Buscar jugador por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-colors placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
-          
-          <button 
+
+          <button
             onClick={sortJugadoresManually}
             className="flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 w-full sm:w-auto justify-center"
           >
@@ -272,57 +411,94 @@ export default function Dashboard() {
               <tr className="bg-gray-100/80 dark:bg-gray-900/80 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-800 transition-colors">
                 <th className="px-6 py-4 font-semibold">Rank</th>
                 <th className="px-6 py-4 font-semibold">Jugador</th>
-                <th className="px-6 py-4 font-semibold text-center">Capital Raids</th>
-                <th className="px-6 py-4 font-semibold text-center">Clan Games</th>
-                <th className="px-6 py-4 font-semibold text-center">Classic Wars</th>
+                <th className="px-6 py-4 font-semibold text-center">
+                  Capital Raids
+                </th>
+                <th className="px-6 py-4 font-semibold text-center">
+                  Clan Games
+                </th>
+                <th className="px-6 py-4 font-semibold text-center">
+                  Classic Wars
+                </th>
                 <th className="px-6 py-4 font-semibold text-center">CWL</th>
-                <th className="px-6 py-4 font-semibold text-right text-emerald-600 dark:text-emerald-400">Total Score</th>
-                <th className="px-4 py-4 font-semibold text-center">Acciones</th>
+                <th className="px-6 py-4 font-semibold text-right text-emerald-600 dark:text-emerald-400">
+                  Total Score
+                </th>
+                <th className="px-4 py-4 font-semibold text-center">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
               {jugadoresFiltrados.map((jugador, index) => {
-                const realIndex = jugadores.findIndex(j => j.id === jugador.id);
+                const realIndex = jugadores.findIndex(
+                  (j) => j.id === jugador.id,
+                );
                 const isTop8 = realIndex !== -1 && realIndex < 8;
                 const isFirst = realIndex === 0;
 
                 return (
-                  <tr 
-                    key={jugador.id} 
-                    className={`group transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 ${isTop8 ? 'bg-emerald-50 dark:bg-emerald-950/10' : ''}`}
+                  <tr
+                    key={jugador.id}
+                    className={`group transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 ${isTop8 ? "bg-emerald-50 dark:bg-emerald-950/10" : ""}`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`font-mono text-lg font-bold ${isFirst ? 'text-amber-500 dark:text-amber-400' : isTop8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                        <span
+                          className={`font-mono text-lg font-bold ${isFirst ? "text-amber-500 dark:text-amber-400" : isTop8 ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400 dark:text-gray-500"}`}
+                        >
                           #{realIndex + 1}
                         </span>
-                        {isFirst && <Crown className="w-5 h-5 text-amber-500 dark:text-amber-400 drop-shadow-md" />}
+                        {isFirst && (
+                          <Crown className="w-5 h-5 text-amber-500 dark:text-amber-400 drop-shadow-md" />
+                        )}
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-900 dark:text-gray-200">
                         {jugador.nombre}
-                        {jugador.th && <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded transition-colors">TH{jugador.th}</span>}
+                        {jugador.th && (
+                          <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded transition-colors">
+                            TH{jugador.th}
+                          </span>
+                        )}
                       </div>
-                      {isTop8 && <div className="text-[10px] text-emerald-600 dark:text-emerald-500 font-semibold uppercase tracking-wider mt-0.5">Bonus CWL</div>}
+                      {isTop8 && (
+                        <div className="text-[10px] text-emerald-600 dark:text-emerald-500 font-semibold uppercase tracking-wider mt-0.5">
+                          Bonus CWL
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-6 py-4 text-center">
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={jugador.ataquesCapital}
-                        onChange={(e) => updatePlayer(jugador.id, 'ataquesCapital', e.target.value)}
+                        onChange={(e) =>
+                          updatePlayer(
+                            jugador.id,
+                            "ataquesCapital",
+                            e.target.value,
+                          )
+                        }
                         className="w-16 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-300/50 dark:border-gray-700/50 rounded px-2 py-1 text-center text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-950"
                       />
                     </td>
 
                     <td className="px-6 py-4 text-center">
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={jugador.puntosJuegos}
                         step="100"
-                        onChange={(e) => updatePlayer(jugador.id, 'puntosJuegos', e.target.value)}
+                        max="4000"
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          // Solo actualiza el estado si el valor es menor o igual a 4000
+                          if (Number(newValue) <= 4000) {
+                            updatePlayer(jugador.id, "puntosJuegos", newValue);
+                          }
+                        }}
                         className="w-20 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-300/50 dark:border-gray-700/50 rounded px-2 py-1 text-center text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-emerald-500 outline-none transition-all hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-950"
                       />
                     </td>
@@ -330,31 +506,61 @@ export default function Dashboard() {
                     <td className="px-6 py-4">
                       <div className="flex justify-center">
                         <div className="flex items-center justify-between w-32 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 transition-colors">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-8 text-right pr-1">USOS</span>
-                          <button onClick={() => updateClassicWars(jugador.id, -1)} className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 transition-colors text-gray-500 dark:text-gray-400"><Minus className="w-3 h-3"/></button>
-                          <span className="w-4 text-center font-mono text-sm text-gray-700 dark:text-gray-300">{jugador.ataquesClasicasUsados}</span>
-                          <button onClick={() => updateClassicWars(jugador.id, 1)} className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-gray-500 dark:text-gray-400"><Plus className="w-3 h-3"/></button>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-8 text-right pr-1">
+                            USOS
+                          </span>
+                          <button
+                            onClick={() => updateClassicWars(jugador.id, -1)}
+                            className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 transition-colors text-gray-500 dark:text-gray-400"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="w-4 text-center font-mono text-sm text-gray-700 dark:text-gray-300">
+                            {jugador.ataquesClasicasUsados}
+                          </span>
+                          <button
+                            onClick={() => updateClassicWars(jugador.id, 1)}
+                            className="p-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors text-gray-500 dark:text-gray-400"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4">
-                       <div className="flex flex-col items-center gap-2">
+                      <div className="flex flex-col items-center gap-2">
                         <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">ESTRELLAS</span>
-                          <input 
-                            type="number" 
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">
+                            ESTRELLAS
+                          </span>
+                          <input
+                            type="number"
                             value={jugador.estrellasCWL}
-                            onChange={(e) => updatePlayer(jugador.id, 'estrellasCWL', e.target.value)}
+                            onChange={(e) =>
+                              updatePlayer(
+                                jugador.id,
+                                "estrellasCWL",
+                                e.target.value,
+                              )
+                            }
                             className="w-10 bg-transparent text-center text-gray-700 dark:text-gray-300 font-mono text-sm outline-none rounded"
                           />
                         </div>
                         <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-lg p-1 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">DÍAS</span>
-                          <input 
-                            type="number" 
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold w-12 text-right">
+                            DÍAS
+                          </span>
+                          <input
+                            type="number"
                             value={jugador.diasJugadosCWL}
-                            onChange={(e) => updatePlayer(jugador.id, 'diasJugadosCWL', e.target.value)}
+                            onChange={(e) =>
+                              updatePlayer(
+                                jugador.id,
+                                "diasJugadosCWL",
+                                e.target.value,
+                              )
+                            }
                             className="w-10 bg-transparent text-center text-gray-700 dark:text-gray-300 font-mono text-sm outline-none rounded"
                           />
                         </div>
@@ -363,20 +569,33 @@ export default function Dashboard() {
 
                     <td className="px-6 py-4 text-right">
                       <div className="flex flex-col items-end">
-                        <span className={`text-2xl font-bold transition-all ${isFirst ? 'text-amber-500 dark:text-amber-400 drop-shadow-md' : isTop8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-800 dark:text-gray-300'}`}>
+                        <span
+                          className={`text-2xl font-bold transition-all ${isFirst ? "text-amber-500 dark:text-amber-400 drop-shadow-md" : isTop8 ? "text-emerald-600 dark:text-emerald-400" : "text-gray-800 dark:text-gray-300"}`}
+                        >
                           {jugador.totalScore.toFixed(1)}
                         </span>
                         <div className="flex gap-1 text-[9px] text-gray-500 mt-1 font-mono bg-gray-50/50 dark:bg-gray-950/50 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-800 shadow-inner transition-colors">
-                          <span title="Puntos de Capital">{jugador.detallesPuntaje.capital}</span>|
-                          <span title="Puntos de Juegos">{jugador.detallesPuntaje.juegos}</span>|
-                          <span title="Puntos Clásicas">{jugador.detallesPuntaje.clasicas}</span>|
-                          <span title="Puntos CWL">{jugador.detallesPuntaje.cwl}</span>
+                          <span title="Puntos de Capital">
+                            {jugador.detallesPuntaje.capital}
+                          </span>
+                          |
+                          <span title="Puntos de Juegos">
+                            {jugador.detallesPuntaje.juegos}
+                          </span>
+                          |
+                          <span title="Puntos Clásicas">
+                            {jugador.detallesPuntaje.clasicas}
+                          </span>
+                          |
+                          <span title="Puntos CWL">
+                            {jugador.detallesPuntaje.cwl}
+                          </span>
                         </div>
                       </div>
                     </td>
-                    
+
                     <td className="px-4 py-4 text-center">
-                      <button 
+                      <button
                         onClick={() => removeJugador(jugador.id)}
                         title="Eliminar Jugador"
                         className="p-2 rounded-lg text-gray-400 hover:bg-red-100 dark:hover:bg-red-500/10 hover:text-red-500 transition-all"
@@ -399,4 +618,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
