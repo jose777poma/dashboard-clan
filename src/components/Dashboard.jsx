@@ -13,6 +13,7 @@ import {
   ArrowDownUp,
   Sun,
   Moon,
+  RotateCcw,
 } from "lucide-react";
 import { db } from "../firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -131,6 +132,7 @@ export default function Dashboard() {
     addJugador,
     removeJugador,
     sortJugadoresManually,
+    resetPuntajes,
   } = useClanData(mockPlayers);
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -139,6 +141,15 @@ export default function Dashboard() {
   const [newPlayerName, setNewPlayerName] = useState("");
   const [newPlayerTH, setNewPlayerTH] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleResetPuntajes = () => {
+    const confirmar = window.confirm(
+      "⚠️ ¿Estás seguro de que deseas reiniciar todos los puntajes a 0 para el nuevo mes?\n\nLos jugadores y sus niveles de TH se mantendrán, pero todos los ataques, puntos de juegos y estrellas volverán a 0."
+    );
+    if (confirmar) {
+      resetPuntajes();
+    }
+  };
 
   // Persistir preferencia de tema
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -205,7 +216,13 @@ export default function Dashboard() {
     setJugadores((prev) =>
       prev.map((p) => {
         if (p.id === id) {
-          const newValue = Math.max(0, Number(value));
+          let newValue = Math.max(0, Number(value));
+          if (field === "diasJugadosCWL") {
+            newValue = Math.min(newValue, 7);
+          }
+          if (field === "estrellasCWL") {
+            newValue = Math.min(newValue, 21);
+          }
           return { ...p, [field]: newValue };
         }
         return p;
@@ -395,13 +412,24 @@ export default function Dashboard() {
             />
           </div>
 
-          <button
-            onClick={sortJugadoresManually}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 w-full sm:w-auto justify-center"
-          >
-            <ArrowDownUp className="w-4 h-4" />
-            Ordenar por Puntaje
-          </button>
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+            <button
+              onClick={sortJugadoresManually}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 flex-1 sm:flex-initial justify-center"
+            >
+              <ArrowDownUp className="w-4 h-4" />
+              Ordenar por Puntaje
+            </button>
+
+            <button
+              onClick={handleResetPuntajes}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg bg-rose-600/90 hover:bg-rose-600 text-white active:scale-95 border border-rose-700/50 flex-1 sm:flex-initial justify-center"
+              title="Reiniciar todos los puntajes a 0 para el nuevo mes"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reiniciar Mes (0 Pts)
+            </button>
+          </div>
         </div>
 
         {/* Tabla Principal */}
@@ -409,22 +437,28 @@ export default function Dashboard() {
           <table className="w-full text-left whitespace-nowrap">
             <thead>
               <tr className="bg-gray-100/80 dark:bg-gray-900/80 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-800 transition-colors">
-                <th className="px-6 py-4 font-semibold">Rank</th>
-                <th className="px-6 py-4 font-semibold">Jugador</th>
-                <th className="px-6 py-4 font-semibold text-center">
+                <th className="px-6 py-4 font-semibold w-24 min-w-[90px]">
+                  Rank
+                </th>
+                <th className="px-6 py-4 font-semibold min-w-[180px]">
+                  Jugador
+                </th>
+                <th className="px-6 py-4 font-semibold text-center w-36 min-w-[130px]">
                   Capital Raids
                 </th>
-                <th className="px-6 py-4 font-semibold text-center">
+                <th className="px-6 py-4 font-semibold text-center w-36 min-w-[130px]">
                   Clan Games
                 </th>
-                <th className="px-6 py-4 font-semibold text-center">
+                <th className="px-6 py-4 font-semibold text-center w-44 min-w-[160px]">
                   Classic Wars
                 </th>
-                <th className="px-6 py-4 font-semibold text-center">CWL</th>
-                <th className="px-6 py-4 font-semibold text-right text-emerald-600 dark:text-emerald-400">
+                <th className="px-6 py-4 font-semibold text-center w-48 min-w-[170px]">
+                  CWL
+                </th>
+                <th className="px-6 py-4 font-semibold text-right text-emerald-600 dark:text-emerald-400 w-44 min-w-[160px]">
                   Total Score
                 </th>
-                <th className="px-4 py-4 font-semibold text-center">
+                <th className="px-4 py-4 font-semibold text-center w-24 min-w-[80px]">
                   Acciones
                 </th>
               </tr>
@@ -536,6 +570,8 @@ export default function Dashboard() {
                           </span>
                           <input
                             type="number"
+                            min="0"
+                            max="21"
                             value={jugador.estrellasCWL}
                             onChange={(e) =>
                               updatePlayer(
@@ -553,6 +589,8 @@ export default function Dashboard() {
                           </span>
                           <input
                             type="number"
+                            min="0"
+                            max="7"
                             value={jugador.diasJugadosCWL}
                             onChange={(e) =>
                               updatePlayer(
@@ -567,27 +605,27 @@ export default function Dashboard() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right w-44 min-w-[160px]">
                       <div className="flex flex-col items-end">
                         <span
-                          className={`text-2xl font-bold transition-all ${isFirst ? "text-amber-500 dark:text-amber-400 drop-shadow-md" : isTop8 ? "text-emerald-600 dark:text-emerald-400" : "text-gray-800 dark:text-gray-300"}`}
+                          className={`text-2xl font-bold font-mono tabular-nums ${isFirst ? "text-amber-500 dark:text-amber-400 drop-shadow-md" : isTop8 ? "text-emerald-600 dark:text-emerald-400" : "text-gray-800 dark:text-gray-300"}`}
                         >
                           {jugador.totalScore.toFixed(1)}
                         </span>
-                        <div className="flex gap-1 text-[9px] text-gray-500 mt-1 font-mono bg-gray-50/50 dark:bg-gray-950/50 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-800 shadow-inner transition-colors">
-                          <span title="Puntos de Capital">
+                        <div className="flex items-center gap-1 text-[9px] text-gray-500 mt-1 font-mono tabular-nums bg-gray-50/50 dark:bg-gray-950/50 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-800 shadow-inner transition-colors">
+                          <span className="w-5 text-center" title="Puntos de Capital">
                             {jugador.detallesPuntaje.capital}
                           </span>
                           |
-                          <span title="Puntos de Juegos">
+                          <span className="w-5 text-center" title="Puntos de Juegos">
                             {jugador.detallesPuntaje.juegos}
                           </span>
                           |
-                          <span title="Puntos Clásicas">
+                          <span className="w-5 text-center" title="Puntos Clásicas">
                             {jugador.detallesPuntaje.clasicas}
                           </span>
                           |
-                          <span title="Puntos CWL">
+                          <span className="w-5 text-center" title="Puntos CWL">
                             {jugador.detallesPuntaje.cwl}
                           </span>
                         </div>

@@ -50,24 +50,24 @@ export const useClanData = (initialJugadores = []) => {
         diasJugadosCWL = 0,
       } = jugador;
 
-      // 1. Puntaje Capital (40 pts máximo)
-      let ptsCapital = (ataquesCapital / metaCapitalGlobal) * 40;
-      ptsCapital = Math.min(ptsCapital, 40);
+      // 1. Puntaje Capital (35 pts máximo)
+      let ptsCapital = (ataquesCapital / metaCapitalGlobal) * 35;
+      ptsCapital = Math.min(ptsCapital, 35);
 
-      // 2. Puntaje Juegos (30 pts máximo)
-      let ptsJuegos = (puntosJuegos / 4000) * 30;
-      ptsJuegos = Math.min(ptsJuegos, 30);
+      // 2. Puntaje Juegos (20 pts máximo)
+      let ptsJuegos = (puntosJuegos / 4000) * 20;
+      ptsJuegos = Math.min(ptsJuegos, 20);
 
-      // 3. Puntaje Guerras Clásicas (15 pts máximo)
-      let ptsClasicas = (ataquesClasicasUsados / metaClasicasGlobal) * 15;
-      ptsClasicas = Math.min(ptsClasicas, 15);
+      // 3. Puntaje Guerras Clásicas (25 pts máximo)
+      let ptsClasicas = (ataquesClasicasUsados / metaClasicasGlobal) * 25;
+      ptsClasicas = Math.min(ptsClasicas, 25);
 
-      // 4. Puntaje CWL (15 pts máximo)
+      // 4. Puntaje CWL (20 pts máximo)
       let ptsCWL = 0;
       if (diasJugadosCWL > 0) {
-        ptsCWL = (estrellasCWL / (diasJugadosCWL * 3)) * 15;
+        ptsCWL = (estrellasCWL / (diasJugadosCWL * 3)) * 20;
       }
-      ptsCWL = Math.min(ptsCWL, 15);
+      ptsCWL = Math.min(ptsCWL, 20);
 
       // Suma total y redondeo a un decimal
       const scoreSuma = ptsCapital + ptsJuegos + ptsClasicas + ptsCWL;
@@ -121,6 +121,19 @@ export const useClanData = (initialJugadores = []) => {
     );
   };
 
+  const resetPuntajes = () => {
+    setJugadores((prev) =>
+      prev.map((jugador) => ({
+        ...jugador,
+        ataquesCapital: 0,
+        puntosJuegos: 0,
+        ataquesClasicasUsados: 0,
+        estrellasCWL: 0,
+        diasJugadosCWL: 0,
+      }))
+    );
+  };
+
   return {
     jugadores: jugadoresCalculados,
     setJugadores,
@@ -133,5 +146,6 @@ export const useClanData = (initialJugadores = []) => {
     addJugador,
     removeJugador,
     sortJugadoresManually,
+    resetPuntajes,
   };
 };
